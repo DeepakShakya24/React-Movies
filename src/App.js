@@ -1,25 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Navbar from "./components/Navbar/Navbar";
+import MovieItem from "./components/MovieItem/MovieItem";
+import getMovies from "./hooks/getMovies";
 
-function App() {
+const BASE_URL = "https://api.themoviedb.org/3";
+const SEARCH_URL = `${BASE_URL}/search/movie?api_key=${process.env.REACT_APP_KEY}&language=en-US`;
+
+const App = () => {
+  const [movies, setMovies] = useState([]);
+  useEffect(() => {
+    (async () => {
+      const movieData = await getMovies();
+      setMovies(movieData);
+      console.log(movieData);
+    })();
+  }, []);
+
+  const SearchedMovie = async (e) => {
+    e.preventDefault();
+    const inputMovie = e.target.elements.inputmovies.value;
+    const searchedMovie = await axios.get(`${SEARCH_URL}&query=${inputMovie}`);
+    setMovies(searchedMovie.data.results);
+    console.log(searchedMovie.data.results);
+  };
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Navbar SearchedMovie={SearchedMovie} />
+      <MovieItem movies={movies} />
     </div>
   );
-}
+};
 
 export default App;
